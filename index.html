@@ -49,16 +49,25 @@
     display: inline-block;
     opacity: 1;
     animation: explode 1s forwards;
+    transform: translate(
+      var(--translate-x, 0px),
+      var(--translate-y, 0px)
+    )
+    rotate(var(--rotate, 0deg))
+    scale(0.3);
   }
 
   @keyframes explode {
-    0% { transform: translate(0, 0) rotate(0) scale(1); opacity: 1; }
+    0% {
+      transform: translate(0, 0) rotate(0deg) scale(1);
+      opacity: 1;
+    }
     100% {
       transform: translate(
-        calc((50 - (Math.random() * 100)) * 1px),
-        calc((50 - (Math.random() * 100)) * 1px)
+        var(--translate-x, 0px),
+        var(--translate-y, 0px)
       )
-      rotate(calc((Math.random() * 720 - 360) * 1deg))
+      rotate(var(--rotate, 0deg))
       scale(0.3);
       opacity: 0;
     }
@@ -141,13 +150,20 @@ const fonts = ["Comic Sans MS", "Papyrus", "Impact", "Chalkduster", "Cursive"];
 const audio = new Audio('/assets/music.mp3');
 audio.volume = 0.1;
 
-// Turn text into spans for explosion
+// Turn text into spans for explosion and set random transform values
 function wrapTextInSpans(element) {
   const text = element.innerText;
   element.innerHTML = "";
   text.split("").forEach(char => {
     const span = document.createElement("span");
     span.textContent = char;
+    // Set random values for translation and rotation
+    const translateX = (50 - Math.random() * 100);
+    const translateY = (50 - Math.random() * 100);
+    const rotate = (Math.random() * 720 - 360);
+    span.style.setProperty('--translate-x', `${translateX}px`);
+    span.style.setProperty('--translate-y', `${translateY}px`);
+    span.style.setProperty('--rotate', `${rotate}deg`);
     element.appendChild(span);
   });
 }
