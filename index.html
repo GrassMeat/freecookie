@@ -147,7 +147,7 @@ const button = document.getElementById("myButton");
 const title = document.getElementById("title");
 const subtitle = document.getElementById("subtitle");
 const fonts = ["Comic Sans MS", "Papyrus", "Impact", "Chalkduster", "Cursive"];
-const audio = new Audio('/assets/music.mp3');
+const audio = new Audio('assets/music.mp3');
 audio.volume = 0.1;
 
 // Turn text into spans for explosion and set random transform values
@@ -185,7 +185,7 @@ function spawnImage() {
   wrapper.classList.add("spawned-wrapper");
 
   const img = new Image();
-  img.src = '/assets/anim.png';
+  img.src = 'assets/anim.png';
   img.classList.add("spawned-img");
 
   img.onload = function() {
