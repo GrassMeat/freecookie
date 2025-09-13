@@ -1,0 +1,248 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>FreeCookiee</title>
+<style>
+  body {
+    margin: 0;
+    height: 100vh;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    flex-direction: column;
+    background: linear-gradient(135deg, #0f0c29, #302b63, #24243e);
+    background-size: 400% 400%;
+    animation: gradientBG 12s ease infinite;
+    overflow: hidden;
+    font-family: 'Comic Sans MS', cursive;
+    color: white;
+    position: relative;
+  }
+
+  @keyframes gradientBG {
+    0% { background-position: 0% 50%; }
+    50% { background-position: 100% 50%; }
+    100% { background-position: 0% 50%; }
+  }
+
+  h1 {
+    font-size: clamp(2rem, 6vw, 3rem);
+    text-transform: uppercase;
+    letter-spacing: clamp(2px, 1vw, 5px);
+    margin: 0;
+    text-shadow: 0 0 15px cyan, 0 0 30px magenta;
+    transition: opacity 0.5s ease;
+    text-align: center;
+  }
+
+  p {
+    font-size: clamp(1rem, 3vw, 1.2rem);
+    margin: 10px 0 30px 0;
+    opacity: 0.8;
+    transition: opacity 0.5s ease;
+    text-align: center;
+  }
+
+  .explode span {
+    display: inline-block;
+    opacity: 1;
+    animation: explode 1s forwards;
+  }
+
+  @keyframes explode {
+    0% { transform: translate(0, 0) rotate(0) scale(1); opacity: 1; }
+    100% {
+      transform: translate(
+        calc((50 - (Math.random() * 100)) * 1px),
+        calc((50 - (Math.random() * 100)) * 1px)
+      )
+      rotate(calc((Math.random() * 720 - 360) * 1deg))
+      scale(0.3);
+      opacity: 0;
+    }
+  }
+
+  #myButton {
+    background: #8a2be2;
+    color: #fff;
+    padding: clamp(12px, 2vw, 18px) clamp(20px, 5vw, 40px);
+    font-size: clamp(16px, 4vw, 20px);
+    border: none;
+    border-radius: 12px;
+    cursor: pointer;
+    font-family: "Comic Sans MS", cursive;
+    text-transform: uppercase;
+    box-shadow: 0 0 20px #ff00ff, 0 0 40px #00ffff;
+    transition: all 0.3s ease;
+    z-index: 10;
+  }
+
+  #myButton:hover {
+    transform: scale(1.1);
+    box-shadow: 0 0 30px #ff00ff, 0 0 60px #00ffff;
+  }
+
+  .wiggle {
+    animation: wiggle 1s ease-in-out infinite;
+  }
+
+  @keyframes wiggle {
+    0% { transform: rotate(0deg); }
+    25% { transform: rotate(5deg); }
+    50% { transform: rotate(-5deg); }
+    75% { transform: rotate(5deg); }
+    100% { transform: rotate(0deg); }
+  }
+
+  .fade-out {
+    opacity: 0 !important;
+    transition: opacity 1.5s ease-in-out, transform 1.5s ease-in-out;
+    transform: scale(0.5) rotate(45deg);
+  }
+
+  .spawned-wrapper {
+    position: absolute;
+    pointer-events: none;
+    z-index: 2;
+  }
+
+  .spawned-img {
+    display: block;
+    width: 100%;
+    height: auto;
+  }
+
+  @media (max-width: 768px) {
+    h1, p {
+      text-align: center;
+    }
+    .spawned-img {
+      width: 55vw !important;
+    }
+  }
+</style>
+</head>
+<body>
+<h1 id="title">You want free cookie?</h1>
+<p id="subtitle">Click to claim!</p>
+<button id="myButton">Trust me, Bro</button>
+
+<script>
+let isFirstClick = true;
+let spawnInterval = 2000;
+let spawnTimer = null;
+
+const button = document.getElementById("myButton");
+const title = document.getElementById("title");
+const subtitle = document.getElementById("subtitle");
+const fonts = ["Comic Sans MS", "Papyrus", "Impact", "Chalkduster", "Cursive"];
+const audio = new Audio('/assets/music.mp3');
+audio.volume = 0.1;
+
+// Turn text into spans for explosion
+function wrapTextInSpans(element) {
+  const text = element.innerText;
+  element.innerHTML = "";
+  text.split("").forEach(char => {
+    const span = document.createElement("span");
+    span.textContent = char;
+    element.appendChild(span);
+  });
+}
+wrapTextInSpans(title);
+wrapTextInSpans(subtitle);
+
+function explodeText() {
+  title.classList.add("explode");
+  subtitle.classList.add("explode");
+  setTimeout(() => {
+    title.style.display = "none";
+    subtitle.style.display = "none";
+  }, 1000);
+}
+
+function spawnImage() {
+  const buttonRect = button.getBoundingClientRect();
+  const wrapper = document.createElement("div");
+  wrapper.classList.add("spawned-wrapper");
+
+  const img = new Image();
+  img.src = '/assets/anim.png';
+  img.classList.add("spawned-img");
+
+  img.onload = function() {
+    const size = Math.random() * (30 - 20) + 20; // vw
+    img.style.width = size + 'vw';
+    img.style.height = "auto";
+
+    const imgW = (size / 100) * window.innerWidth;
+    const imgH = imgW * (img.naturalHeight / img.naturalWidth);
+
+    const startX = buttonRect.left + buttonRect.width / 2 - imgW / 2;
+    const startY = buttonRect.top + buttonRect.height / 2 - imgH / 2;
+
+    wrapper.style.left = startX + 'px';
+    wrapper.style.top = startY + 'px';
+    wrapper.style.width = imgW + 'px';
+    wrapper.style.height = imgH + 'px';
+
+    // Random static rotation
+    const randomRotation = Math.random() * 360;
+    wrapper.style.transform = `rotate(${randomRotation}deg)`;
+
+    wrapper.appendChild(img);
+    document.body.appendChild(wrapper);
+
+    // Mobile-friendly max positions
+    const viewportW = window.innerWidth;
+    const viewportH = window.innerHeight;
+    const maxX = Math.max(0, viewportW - imgW);
+    const maxY = Math.max(0, viewportH - imgH);
+
+    const x = Math.random() * maxX;
+    const y = Math.random() * maxY;
+
+    wrapper.animate([
+      { left: startX + 'px', top: startY + 'px', opacity: 1 },
+      { left: x + 'px', top: y + 'px', opacity: Math.random() * 0.4 + 0.5 }
+    ], {
+      duration: 1000,
+      easing: "ease-out",
+      fill: "forwards"
+    });
+
+    setTimeout(() => {
+      wrapper.classList.add("fade-out");
+      setTimeout(() => wrapper.remove(), 1500);
+    }, Math.random() * (8000 - 5000) + 5000);
+  };
+}
+
+function startSpawning() {
+  if (spawnTimer) clearInterval(spawnTimer);
+  spawnTimer = setInterval(spawnImage, spawnInterval);
+}
+
+button.onclick = function() {
+  if (isFirstClick) {
+    explodeText();
+    this.textContent = "MORE!!";
+    this.style.fontSize = "24px";
+    this.classList.add("wiggle");
+    isFirstClick = false;
+    startSpawning();
+  } else {
+    spawnImage();
+    spawnInterval = Math.max(500, spawnInterval - 300);
+    startSpawning();
+    const randomColor = '#' + Math.floor(Math.random() * 16777215).toString(16);
+    this.style.backgroundColor = randomColor;
+    this.style.fontFamily = fonts[Math.floor(Math.random() * fonts.length)];
+  }
+  audio.play();
+};
+</script>
+</body>
+</html>
